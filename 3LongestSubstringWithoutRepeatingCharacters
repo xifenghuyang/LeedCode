@@ -1,0 +1,149 @@
+## 3.Longest Substring Without Repeating Characters 
+--------------------------------------------------------------------------------
+- Difficulty: Medium
+问题：
+- Given a string, find the length of the longest substring without repeating characters.
+
+- Examples:
+- Given "abcabcbb", the answer is "abc", which the length is 3.
+- Given "bbbbb", the answer is "b", with the length of 1.
+- Given "pwwkew", the answer is "wke", with the length of 3. 
+- Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
+------------------------------------------------------------------------------------
+
+###**算法思想**
+> 自然索引值         补0 12345678   1234567   1234
+> 字符序列               abcabcbb   bbabcdb   abba
+> 重复索引值(开始值) 补0 00012357   0112224   0022  (重点)
+> 最大不重复字符个数     12333321   1122343   1212
+> 重复索引值，该字符前面(离其最近的)重复字符的索引值，
+> 若比前一个字符索引值小，则沿用前一个字符的索引值。
+
+###方法一：
+**完整代码：**
+```
+// Source: https://leetcode.com/problems/longest-substring-without-repeating-characters/
+// Author: Yang Qiang
+// Date  : 2016-8-18
+
+#include<iostream>
+#include<map>
+#include<string>
+using namespace std;
+//**********************************************/
+//方法1：
+//复杂度:时间复杂度为O(n^2),空间复杂度为O(n);
+/***********************************************/
+
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+		//不合理输入
+		if(s.empty()) return 0;
+		//求重复索引值
+		int *repeatIndex=new int[s.length()]; //定义重复索引值单元
+        //memset(repeatIndex,0,sizeof(int)*(s.size()));  
+		//memset是按字节进行重置的,多用于字符
+		repeatIndex[0]=0;
+		for(int i=1; i<s.size(); i++)
+		{
+			repeatIndex[i]=repeatIndex[i-1];
+			for(int j=i-1; j>=0; j--)
+			{	
+				if(s[j]==s[i] && j+1>repeatIndex[i-1])
+				{
+					repeatIndex[i]=j+1;
+					break;
+				}
+			}
+			//cout<<repeatIndex[i];
+		}
+		//遍历字符串，找到最大长度并记录其实地址(repeatIndex)。
+		int maxLength=0;
+		for(int i=0; i!=s.size(); i++)
+		{
+			maxLength= maxLength>(i+1-repeatIndex[i])?maxLength:(i+1-repeatIndex[i]);
+		}
+		delete[] repeatIndex; //释放空间
+		return maxLength;
+    }
+};
+
+int main()
+{
+	Solution s1;
+	string test1="abcabcbb";
+	cout<<s1.lengthOfLongestSubstring(test1)<<endl;
+	string test2="bbabcdb";
+	cout<<s1.lengthOfLongestSubstring(test2)<<endl;
+	string test3="abba";
+	cout<<s1.lengthOfLongestSubstring(test3)<<endl;
+	string test4="a";
+	cout<<s1.lengthOfLongestSubstring(test4)<<endl;
+	return 0;
+}
+```
+###方法一的改进：
+```
+//**********************************************/
+/方法1.1：对方法1的改进，一趟遍历即可，也不需要空间
+//复杂度:时间复杂度为O(n^2),空间复杂度为O(1);
+/***********************************************/
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+		int maxLength=0;
+		int repeatIndex=0; //当前重复索引值的单元
+		//int size=static_cast<int>(s.size()) //加上这句更严谨
+		for(int i=0; i<s.size(); i++)
+		{
+			for(int j=i-1; j>=0; j--)
+			{	
+				if(s[j]==s[i] && j+1>repeatIndex)
+				{
+					repeatIndex=j+1;
+					break;
+				}
+			}
+			maxLength= maxLength>(i+1-repeatIndex)?maxLength:(i+1-repeatIndex);
+			//cout<<repeatIndex[i];
+		}
+		return maxLength;
+    }
+};
+```
+###方法二：hash表
+```
+//**********************************************/
+//方法2：用hash表，一趟遍历即可
+//复杂度:时间复杂度为O(n),空间复杂度为O(n);
+/***********************************************/
+class Solution {
+public:
+    int lengthOfLongestSubstring(string s) {
+		int maxLength=0;
+		int repeatIndex=0; //当前重复索引值的单元
+		int size=static_cast<int>(s.size());
+		map<char,int> maphash;
+
+		for(int i=0; i<size; i++)
+		{
+			if(maphash.find(s[i])!=maphash.end() && maphash[s[i]]+1>repeatIndex)
+			{ //如果找到前面最近重复元素，且重复元素的位置大于前一个元素的索引位置
+				repeatIndex=maphash[s[i]]+1;
+			}
+			if(maxLength<i+1-repeatIndex)
+				maxLength=i+1-repeatIndex;
+			//即先比较再存入
+			maphash[s[i]]=i;
+		}
+		return maxLength;
+    }
+};
+```
+
+###补充说明：
+- map表，声明后便可直接进行键值的赋值操作，不用声明空间。
+- 此处运用的一个操作是，先检查后，赋值。
+- 字符串中最长重复子串用的方法是next值。可对比理解
+
