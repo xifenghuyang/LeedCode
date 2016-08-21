@@ -151,7 +151,7 @@ STL中关于二分查找的函数有三个lower_bound 、upper_bound 、binary_s
 ForwardIter lower_bound(ForwardIter first, ForwardIter last,const _Tp& val)算法返回一个非递减序列[first, last)中的第一个大于等于值val的位置。
 
 ForwardIter upper_bound(ForwardIter first, ForwardIter last, const _Tp& val)算法返回一个非递减序列[first, last)中的第一个大于值val的位置。
-
+链接：http://blog.csdn.net/u013475704/article/details/46458723 
 lower_bound和upper_bound如下图所示：
 
 
